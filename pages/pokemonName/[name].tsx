@@ -11,6 +11,7 @@ import { getPokemonInfo, localFavorites } from '../../utils';
 import confetti from 'canvas-confetti'
 
 
+
 interface Props {
     pokemon: Pokemon
 }
@@ -107,10 +108,11 @@ const PokemonPage: NextPage<Props> = ({ pokemon }) => {
 }
 
 export const getStaticPaths: GetStaticPaths = async (ctx) => {
-    const pokemon151 = [...Array(151)].map((value, index) => `${index + 1}`)
+    const { data } = await pokeApi.get<PokemonListResponse>(`/pokemon?limit=151}`)
+    const pokemonName: string[] = data.results.map(pokemon => pokemon.name)
     return {
-        paths: pokemon151.map(id => ({
-            params: { id: id }
+        paths: pokemonName.map(name => ({
+            params: { name: name }
         })),
         fallback: false
     }
@@ -118,11 +120,11 @@ export const getStaticPaths: GetStaticPaths = async (ctx) => {
 
 
 export const getStaticProps: GetStaticProps = async ({ params }) => {
-    const { id } = params as { id: string }
+    const { name } = params as { name: string }
 
     return {
         props: {
-            pokemon:await getPokemonInfo(id)
+            pokemon:await getPokemonInfo(name)
         }
     }
 }
